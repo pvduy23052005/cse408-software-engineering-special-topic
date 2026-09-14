@@ -126,25 +126,55 @@ flowchart TD
 ## 5. Lộ trình Triển khai Chi tiết 11 Tuần
 
 ```mermaid
-gantt
-    title TIẾN ĐỘ THỰC HIỆN ĐỀ TÀI (11 TUẦN)
-    dateFormat  YYYY-MM-DD
-    section Giai đoạn 1: Nền tảng
-    Tuần 1: Nghiên cứu lý thuyết & Đề cương      :active, t1, 2026-09-15, 7d
-    Tuần 2: Ứng dụng & Docker hóa               :t2, after t1, 7d
-    Tuần 3: Thiết lập Lab Multipass             :t3, after t2, 7d
-    section Giai đoạn 2: Tự động hóa Hạ tầng
-    Tuần 4: Terraform cơ bản                    :t4, after t3, 7d
-    Tuần 5: Terraform & Dynamic Inventory       :t5, after t4, 7d
-    Tuần 6: Ansible cơ bản & Bảo mật OS         :t6, after t5, 7d
-    Tuần 7: Ansible cài đặt Docker & Runtime    :t7, after t6, 7d
-    section Giai đoạn 3: CI/CD & Thực nghiệm
-    Tuần 8: Pipeline GitHub Actions CI/CD       :t8, after t7, 7d
-    Tuần 9: Thực nghiệm đo lường (Benchmark)    :t9, after t8, 7d
-    section Giai đoạn 4: Hoàn thiện
-    Tuần 10: Báo cáo Chuyên đề (5 Chương)       :t10, after t9, 7d
-    Tuần 11: Slide & Kịch bản Demo Bảo vệ       :t11, after t10, 7d
+flowchart TD
+    subgraph Phase1["GIAI ĐOẠN 1: NỀN TẢNG (Tuần 1 - 3)"]
+        W1["Tuần 1: Nghiên cứu lý thuyết & Đề cương"]
+        W2["Tuần 2: Ứng dụng mẫu & Docker hóa"]
+        W3["Tuần 3: Thiết lập Lab Multipass & SSH"]
+        W1 --> W2 --> W3
+    end
+
+    subgraph Phase2["GIAI ĐOẠN 2: TỰ ĐỘNG HÓA HẠ TẦNG (Tuần 4 - 7)"]
+        W4["Tuần 4: Terraform cơ bản - Cấp phát VM"]
+        W5["Tuần 5: Terraform kết nối Dynamic Inventory"]
+        W6["Tuần 6: Ansible cơ bản - Bảo mật hệ điều hành"]
+        W7["Tuần 7: Ansible cài đặt Docker & Nginx Runtime"]
+        W4 --> W5 --> W6 --> W7
+    end
+
+    subgraph Phase3["GIAI ĐOẠN 3: CI/CD & THỰC NGHIỆM (Tuần 8 - 9)"]
+        W8["Tuần 8: Xây dựng Pipeline GitHub Actions CI/CD"]
+        W9["Tuần 9: Thực nghiệm đo lường (Benchmark)"]
+        W8 --> W9
+    end
+
+    subgraph Phase4["GIAI ĐOẠN 4: HOÀN THIỆN & BẢO VỆ (Tuần 10 - 11)"]
+        W10["Tuần 10: Hoàn thiện Báo cáo Chuyên đề (5 Chương)"]
+        W11["Tuần 11: Thiết kế Slide & Chuẩn bị Demo bảo vệ"]
+        W10 --> W11
+    end
+
+    W3 --> W4
+    W7 --> W8
+    W9 --> W10
 ```
+
+### Bảng Tóm tắt Tiến độ Triển khai 11 Tuần
+
+| Tuần | Giai đoạn | Trọng tâm công việc | Sản phẩm bàn giao chính (Deliverable) |
+| :---: | :--- | :--- | :--- |
+| **01** | **Nền tảng** | Nghiên cứu lý thuyết DevOps, IaC, CI/CD | Đề cương chi tiết & Bản nháp Chương 1 |
+| **02** | **Nền tảng** | Viết App mẫu REST API + DB, Docker Multi-stage | Dockerfile tối ưu kích thước, `docker-compose.yml` |
+| **03** | **Nền tảng** | Dựng cụm 2 VM Ubuntu bằng Multipass, cấu hình SSH | 2 VM hoạt động ổn định, SSH không mật khẩu |
+| **04** | **Tự động hóa** | Viết Terraform khởi tạo máy ảo, quản lý state | `terraform apply` sinh cụm máy ảo từ con số 0 |
+| **05** | **Tự động hóa** | Tự động xuất Dynamic Inventory từ Terraform cho Ansible | File `hosts.ini` tự sinh, kiểm tra tính Idempotent |
+| **06** | **Tự động hóa** | Viết Ansible Playbook cấu hình OS, UFW, non-root user | Máy chủ được cập nhật, bảo mật tự động |
+| **07** | **Tự động hóa** | Cài Docker Engine & Nginx Reverse Proxy qua Ansible | Ứng dụng live qua Nginx chỉ sau 1 lệnh Ansible |
+| **08** | **CI/CD** | Xây dựng Pipeline GitHub Actions đa nền tảng | Pipeline xanh từ `git push` đến tự deploy trên VM |
+| **09** | **Thực nghiệm** | Benchmark 3 kịch bản (Thời gian tạo, Deploy, DR) | Bảng số liệu & biểu đồ so sánh cho Chương 4 |
+| **10** | **Hoàn thiện** | Hoàn thiện 5 Chương báo cáo, căn chỉnh format chuẩn | Bản thảo toàn văn Báo cáo Chuyên đề (.pdf/.docx) |
+| **11** | **Bảo vệ** | Thiết kế Slide thuyết trình, chuẩn bị kịch bản Live Demo | Slide 15-18 trang, kịch bản demo trơn tru |
+
 
 ---
 

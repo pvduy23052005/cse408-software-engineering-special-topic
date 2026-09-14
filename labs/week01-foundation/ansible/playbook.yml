@@ -1,0 +1,49 @@
+---
+- name: "Cấu hình Máy chủ & Triển khai Ứng dụng Web (Ansible Foundation)"
+  hosts: webservers
+  connection: local
+  gather_facts: false
+
+  vars:
+    app_version: "1.0.0"
+    page_title: "Chuyên đề Kỹ thuật Phần mềm - CSE408"
+    web_root_dir: "/tmp/cse408-web"
+    app_config_file: "{{ web_root_dir }}/app_config.json"
+
+  tasks:
+    - name: "1. Đảm bảo thư mục lưu trữ ứng dụng tồn tại và đúng phân quyền"
+      ansible.builtin.file:
+        path: "{{ web_root_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: "2. Khởi tạo tệp cấu hình ứng dụng định dạng JSON"
+      ansible.builtin.copy:
+        dest: "{{ app_config_file }}"
+        content: |
+          {
+            "server": "{{ server_alias }}",
+            "environment": "{{ env }}",
+            "port": {{ http_port }},
+            "version": "{{ app_version }}",
+            "active": true
+          }
+        mode: "0644"
+
+    - name: "3. Render tệp giao diện web index.html từ mẫu Jinja2"
+      ansible.builtin.template:
+        src: "templates/index.html.j2"
+        dest: "{{ web_root_dir }}/index.html"
+        mode: "0644"
+
+    - name: "4. Xác minh sự tồn tại của tệp web vừa được deploy"
+      ansible.builtin.stat:
+        path: "{{ web_root_dir }}/index.html"
+      register: web_file_status
+
+    - name: "5. Hiển thị thông báo xác nhận trạng thái triển khai"
+      ansible.builtin.debug:
+        msg: >
+          Triển khai thành công ứng dụng phiên bản {{ app_version }}
+          tại đường dẫn: {{ web_root_dir }}/index.html.
+          Kích thước tệp: {{ web_file_status.stat.size }} bytes.
