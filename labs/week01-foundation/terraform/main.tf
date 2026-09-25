@@ -8,7 +8,7 @@ terraform {
   }
 }
 
-# 1. Khởi tạo tài nguyên hạ tầng mô phỏng (Server Metadata & Config Directory)
+# 1. Khởi tạo tài nguyên hạ tầng mô phỏng
 resource "local_file" "server_spec" {
   filename = "${path.module}/server_spec.json"
   content = jsonencode({
@@ -16,12 +16,12 @@ resource "local_file" "server_spec" {
     environment   = var.environment
     http_port     = var.http_port
     created_at    = timestamp()
-    provisioned_by = "Terraform IaC"
+    provisioned_by = "Terraform"
   })
 }
 
-# 2. Tự động sinh tệp Inventory cho Ansible (Dynamic Inventory Generation)
-# Đây là "cầu nối" kinh điển giữa Terraform (Provisioning) và Ansible (Configuration)
+# 2. Tự động sinh tệp danh mục máy chủ cho Ansible
+# Cầu nối giữa khâu khởi tạo hạ tầng của Terraform và khâu quản lý cấu hình của Ansible
 resource "local_file" "ansible_inventory" {
   filename = "${path.module}/../ansible/inventory.ini"
   content  = <<-EOT

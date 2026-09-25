@@ -1,9 +1,9 @@
-# HƯỚNG DẪN THỰC HÀNH MINI-LAB TUẦN 1: TERRAFORM & ANSIBLE FOUNDATION
+# HƯỚNG DẪN THỰC HÀNH BÀI TẬP TUẦN 1: NỀN TẢNG TERRAFORM VÀ ANSIBLE
 
-Mini-lab này được thiết kế để bạn thực hành **ngay trên máy tính cá nhân (100% Local)** nhằm hiểu rõ bản chất của:
-1. **Terraform:** Cấp phát hạ tầng (Provisioning) và quản lý State.
-2. **Ansible:** Quản lý cấu hình (Configuration Management) và kiểm chứng tính **Idempotence**.
-3. **Mối liên kết:** Terraform tự động xuất dữ liệu (Output) làm đầu vào (Inventory) cho Ansible.
+Bài thực hành này được thiết kế để bạn thực hành **ngay trên máy tính cá nhân** nhằm hiểu rõ bản chất của:
+1. **Terraform:** Khởi tạo hạ tầng và quản lý tệp trạng thái.
+2. **Ansible:** Quản lý cấu hình và kiểm chứng tính nhất quán.
+3. **Mối liên kết:** Terraform tự động xuất dữ liệu làm danh mục máy chủ đầu vào cho Ansible.
 
 ---
 
@@ -28,20 +28,20 @@ ansible --version
 
 ---
 
-## 2. Cấu trúc thư mục Mini-Lab
+## 2. Cấu trúc thư mục bài thực hành
 
 ```text
 labs/week01-foundation/
 ├── terraform/
-│   ├── main.tf              # Định nghĩa tài nguyên hạ tầng & sinh inventory cho Ansible
+│   ├── main.tf              # Định nghĩa tài nguyên hạ tầng & sinh danh mục máy chủ cho Ansible
 │   ├── variables.tf         # Tham số đầu vào (cổng, tên máy chủ, môi trường)
 │   └── outputs.tf           # Xuất thông tin hạ tầng
 └── ansible/
-    ├── ansible.cfg          # Cấu hình Ansible chạy tối ưu local
-    ├── inventory.ini        # Tệp Inventory do Terraform tự động sinh ra
-    ├── playbook.yml         # Kịch bản cấu hình máy chủ & deploy website
+    ├── ansible.cfg          # Cấu hình Ansible chạy tối ưu cục bộ
+    ├── inventory.ini        # Tệp danh mục máy chủ do Terraform tự động sinh ra
+    ├── playbook.yml         # Kịch bản cấu hình máy chủ & triển khai trang web
     └── templates/
-        └── index.html.j2    # Mẫu giao diện web động (Jinja2)
+        └── index.html.j2    # Mẫu giao diện trang web động Jinja2
 ```
 
 ---
@@ -54,29 +54,29 @@ Di chuyển vào thư mục `terraform`:
 cd labs/week01-foundation/terraform
 ```
 
-1. **Khởi tạo Terraform (Tải provider):**
+1. **Khởi tạo Terraform:**
    ```bash
    terraform init
    ```
-   *Ý nghĩa:* Tải các plugin cần thiết (như provider `local`) và khởi tạo thư mục `.terraform/`.
+   *Ý nghĩa:* Tải các thành phần bổ trợ cần thiết (như provider `local`) và khởi tạo thư mục `.terraform/`.
 
-2. **Xem trước kế hoạch thay đổi (Dry-run):**
+2. **Xem trước kế hoạch thay đổi:**
    ```bash
    terraform plan
    ```
    *Ý nghĩa:* So sánh giữa mã nguồn hiện tại và trạng thái thực tế (`terraform.tfstate`) để dự báo những gì sẽ được tạo mới, sửa đổi hoặc xóa bỏ.
 
-3. **Áp dụng kế hoạch (Tạo hạ tầng):**
+3. **Áp dụng kế hoạch:**
    ```bash
    terraform apply -auto-approve
    ```
-   *Ý nghĩa:* Cấp phát tài nguyên thực tế và tự động tạo ra file `../ansible/inventory.ini` chứa metadata máy chủ.
+   *Ý nghĩa:* Cấp phát tài nguyên thực tế và tự động tạo ra tệp `../ansible/inventory.ini` chứa thông tin máy chủ.
 
-4. **Quan sát tệp State:**
+4. **Quan sát tệp trạng thái:**
    ```bash
    cat terraform.tfstate
    ```
-   *Ý nghĩa:* Xem cách Terraform lưu trữ trạng thái hạ tầng thực tế dưới dạng JSON.
+   *Ý nghĩa:* Xem cách Terraform lưu trữ trạng thái hạ tầng thực tế dưới định dạng JSON.
 
 ---
 
@@ -87,31 +87,31 @@ Di chuyển sang thư mục `ansible`:
 cd ../ansible
 ```
 
-1. **Kiểm tra kết nối và Inventory:**
+1. **Kiểm tra kết nối và danh mục máy chủ:**
    ```bash
    ansible all -i inventory.ini -m ping
    ```
    *Kết quả mong đợi:* `localhost | SUCCESS => { "ping": "pong" }`
 
-2. **Chạy Playbook cấu hình lần đầu:**
+2. **Chạy kịch bản cấu hình lần đầu:**
    ```bash
    ansible-playbook -i inventory.ini playbook.yml
    ```
    *Quan sát kết quả:*
-   * Các task hiển thị màu vàng (`changed: [localhost]`).
-   * Summary: `changed=...`, `ok=...`, `failed=0`.
+   * Các tác vụ hiển thị màu vàng (`changed: [localhost]`).
+   * Tóm tắt: `changed=...`, `ok=...`, `failed=0`.
    * Trang web HTML và cấu hình được tạo thành công tại `/tmp/cse408-web/index.html`.
 
-3. **Kiểm chứng tính Idempotence (Chạy lại lần 2 không thay đổi gì):**
+3. **Kiểm chứng tính nhất quán (Chạy lại lần 2 không thay đổi gì):**
    ```bash
    ansible-playbook -i inventory.ini playbook.yml
    ```
    *Quan sát kết quả:*
-   * Các task chuyển sang màu xanh lá (`ok: [localhost]`).
-   * Summary: `changed=0`, `failed=0`.
-   * *Bản chất:* Ansible kiểm tra thấy trạng thái mong muốn đã tồn tại nên **không thực hiện lại**, không gây lỗi.
+   * Các tác vụ chuyển sang màu xanh lá (`ok: [localhost]`).
+   * Tóm tắt: `changed=0`, `failed=0`.
+   * *Bản chất:* Ansible kiểm tra thấy trạng thái mong muốn đã tồn tại nên **không thực hiện lại**, đảm bảo tính nhất quán tuyệt đối.
 
-4. **Kiểm tra kết quả website đã được deploy:**
+4. **Kiểm tra kết quả trang web đã được triển khai:**
    ```bash
    cat /tmp/cse408-web/index.html
    ```
@@ -124,18 +124,18 @@ cd ../ansible
    ```bash
    ansible-playbook -i inventory.ini playbook.yml
    ```
-3. Quan sát: Chỉ duy nhất task cập nhật file HTML báo `changed=1`, các task khác đều là `ok`. Đây chính là sức mạnh của Idempotence!
+3. Quan sát: Chỉ duy nhất tác vụ cập nhật tệp HTML báo `changed=1`, các tác vụ khác đều là `ok`. Đây chính là sức mạnh của tính nhất quán!
 
 ---
 
-### Bước 4: Thu dọn tài nguyên (Cleanup / Destroy)
+### Bước 4: Thu dọn tài nguyên
 Sau khi thực hành xong, quay lại thư mục `terraform` để hủy hạ tầng:
 ```bash
 cd ../terraform
 terraform destroy -auto-approve
 ```
-Xóa thư mục tạm của web server:
+Xóa thư mục tạm của máy chủ web:
 ```bash
 rm -rf /tmp/cse408-web
 ```
-Hạ tầng trở về trạng thái sạch sẽ ban đầu (Clean slate).
+Hạ tầng trở về trạng thái sạch sẽ ban đầu.

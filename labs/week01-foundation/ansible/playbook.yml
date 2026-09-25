@@ -1,5 +1,5 @@
 ---
-- name: "Cấu hình Máy chủ & Triển khai Ứng dụng Web (Ansible Foundation)"
+- name: "Cấu hình máy chủ và triển khai ứng dụng web với Ansible"
   hosts: webservers
   connection: local
   gather_facts: false
@@ -36,7 +36,7 @@
         dest: "{{ web_root_dir }}/index.html"
         mode: "0644"
 
-    - name: "4. Xác minh sự tồn tại của tệp web vừa được deploy"
+    - name: "4. Xác minh sự tồn tại của tệp web vừa được triển khai"
       ansible.builtin.stat:
         path: "{{ web_root_dir }}/index.html"
       register: web_file_status
