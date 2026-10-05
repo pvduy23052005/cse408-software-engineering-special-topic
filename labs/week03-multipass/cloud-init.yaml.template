@@ -1,0 +1,61 @@
+#cloud-config
+# ==============================================================================
+# TỆP CẤU HÌNH KHỞI TẠO TỰ ĐỘNG CLOUD-INIT CHO MÁY ẢO UBUNTU TRÊN MULTIPASS
+# Môn học: Chuyên đề Kỹ thuật Phần mềm (CSE408)
+# Sinh viên thực hiện: Phùng Văn Duy - MSSV: 2352270589
+# Giảng viên hướng dẫn: Nguyễn Thọ Thông
+# ==============================================================================
+
+# 1. Cấu hình tài khoản người dùng
+users:
+  - name: ubuntu
+    gecos: Quản trị viên hệ thống Ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: [adm, sudo]
+    shell: /bin/bash
+    lock_passwd: false
+    ssh_authorized_keys:
+      - __SSH_PUBLIC_KEY__
+
+# 2. Cập nhật danh mục gói phần mềm
+package_update: true
+package_upgrade: false
+
+# 3. Cài đặt các gói tiện ích quản trị ban đầu
+packages:
+  - curl
+  - wget
+  - git
+  - ufw
+  - htop
+  - net-tools
+  - ca-certificates
+
+# 4. Thiết lập múi giờ Việt Nam
+timezone: Asia/Ho_Chi_Minh
+
+# 5. Thiết lập thông điệp chào mừng khi đăng nhập vào máy chủ
+write_files:
+  - path: /etc/motd
+    content: |
+      ======================================================================
+      HỆ THỐNG MÁY ẢO THỰC HÀNH - CSE408 (CHUYÊN ĐỀ KỸ THUẬT PHẦN MỀM)
+      Đề tài: Tự động hóa hạ tầng và CI/CD với Docker, Terraform và Ansible
+      Sinh viên thực hiện: Phùng Văn Duy - MSSV: 2352270589
+      Giảng viên hướng dẫn: Nguyễn Thọ Thông
+      ======================================================================
+    append: false
+
+# 6. Các câu lệnh cấu hình bảo mật hệ thống tự động
+runcmd:
+  # Cấu hình dịch vụ SSH: Cho phép đăng nhập bằng khóa, cấm đăng nhập bằng mật khẩu
+  - sed -i 's/^#*PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
+  - sed -i 's/^#*PubkeyAuthentication .*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+  - systemctl restart ssh
+  # Thiết lập tường lửa UFW: Chỉ mở cổng SSH (22), HTTP (80), HTTPS (443)
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow 22/tcp
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable
