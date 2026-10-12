@@ -61,6 +61,31 @@ flowchart TD
     VM1 -->|"Kết nối truy vấn dữ liệu MongoDB (Cổng 27017)"| VM2
 ```
 
+*Sơ đồ phân bổ và luồng liên lạc cụm máy chủ:*
+
+```text
++-----------------------------------------------------------------------------------+
+|                            MÁY TÍNH CÁ NHÂN (macOS HOST)                          |
+|             Khóa quản trị SSH chuyên dụng: ~/.ssh/id_ed25519_multipass            |
++-----------------------------------------+-----------------------------------------+
+                                          |
+        +---------------------------------+---------------------------------+
+        | (Kết nối quản trị SSH - Cổng 22)                                  | (Kết nối quản trị SSH - Cổng 22)
+        v                                                                   v
++-----------------------------------------+       +-----------------------------------------+
+|          MÁY CHỦ 1: prod-vm             |       |          MÁY CHỦ 2: db-server           |
++-----------------------------------------+       +-----------------------------------------+
+| - Địa chỉ IP: 192.168.252.4/24          |       | - Địa chỉ IP: 192.168.252.5/24          |
+| - Tài khoản: ubuntu (Quyền sudo)        |       | - Tài khoản: user-db (Quyền sudo)       |
+| - Cấu hình: 1 vCPU, 1.5 GB RAM, 10 GB   |       | - Cấu hình: 1 vCPU, 1.5 GB RAM, 10 GB   |
+| - Cổng mở: 22 (SSH), 80, 443            |       | - Dịch vụ: MongoDB Server (Cổng 27017)  |
+| - Vai trò: Chạy ứng dụng Container      |       | - Vai trò: Lưu trữ cơ sở dữ liệu        |
++-----------------------------------------+       +-----------------------------------------+
+                    |                                                   ^
+                    +--- [Kết nối truy vấn dữ liệu MongoDB nội bộ] ------+
+                         (Chỉ cho phép từ 192.168.252.4 tới cổng 27017)
+```
+
 ### 2.2. Bảng thông số kỹ thuật chi tiết của cụm máy chủ
 
 | Thông số | Máy chủ ứng dụng (`prod-vm`) | Máy chủ cơ sở dữ liệu (`db-server`) |
