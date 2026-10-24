@@ -1,0 +1,14 @@
+# 1. Thư mục chứa file cài đặt nặng của các provider
+**/.terraform/*
+.terraform.lock.hcl
+
+# 2. Các file lưu trạng thái hạ tầng
+*.tfstate
+*.tfstate.*
+
+# 3. File biến môi trường cá nhân/nhạy cảm
+*.tfvars
+!*.tfvars.example
+
+# 4. File cấu hình tạm sinh tự động
+cloud-init.yaml

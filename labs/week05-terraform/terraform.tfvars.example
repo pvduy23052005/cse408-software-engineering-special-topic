@@ -1,0 +1,27 @@
+# ==============================================================================
+# TỆP MẪU THAM SỐ CẤU HÌNH HẠ TẦNG CỤM MÁY CHỦ THỬ NGHIỆM (TEST) - TUẦN 5
+# Tài nguyên tối giản: 1 CPU, 512MB RAM, 3GB Disk
+# ==============================================================================
+
+app_server_config = {
+  name       = "prod-vm"
+  ip_address = "192.168.252.4"
+  user       = "ubuntu"
+  role       = "Test App Node"
+  cpus       = 1
+  memory     = "512MB"
+  disk       = "3GB"
+}
+
+db_server_config = {
+  name       = "db-server"
+  ip_address = "192.168.252.5"
+  user       = "user-db"
+  role       = "Test DB Node"
+  cpus       = 1
+  memory     = "512MB"
+  disk       = "3GB"
+}
+
+ssh_private_key_path = "~/.ssh/id_ed25519_multipass"
+environment          = "testing"

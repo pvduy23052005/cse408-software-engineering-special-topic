@@ -10,28 +10,55 @@
 
 ## 1. Tổng quan về Terraform và tư duy hạ tầng dưới dạng mã nguồn
 
-Trong quy trình phát triển và vận hành hiện đại, việc quản trị hạ tầng thủ công bằng cách gõ lệnh trên từng máy chủ bộc lộ nhiều điểm yếu về thời gian, khả năng kiểm soát phiên bản và tính lặp lại. Terraform là công cụ hạ tầng dưới dạng mã nguồn mã nguồn mở do HashiCorp phát triển, cho phép định nghĩa, cấp phát và quản lý toàn bộ tài nguyên hệ thống thông qua các tệp mã nguồn cấu hình rõ ràng.
+Terraform là công cụ Hạ tầng dưới dạng mã nguồn (IaC) mã nguồn mở của HashiCorp, cho phép định nghĩa, cấp phát và quản lý toàn bộ tài nguyên hệ thống một cách nhất quán thông qua các tệp mã nguồn cấu hình rõ ràng.
 
-### 1.1. So sánh mô hình hạ tầng khai báo và mô hình mệnh lệnh
+### 1.1. Tại sao phải sử dụng Terraform trong quy trình tự động hóa hạ tầng?
 
-* **Mô hình mệnh lệnh:**
-  * Người quản trị phải tự tay định nghĩa chi tiết từng bước thực thi: làm thế nào để đạt được trạng thái mong muốn (ví dụ: chạy lệnh kiểm tra xem máy ảo đã có chưa, nếu chưa có thì gõ lệnh tạo, sau đó cấu hình mạng).
-  * Nhược điểm: Phức tạp, dễ phát sinh lỗi khi chạy lại nhiều lần và khó theo dõi sự thay đổi của toàn hệ thống theo thời gian.
-* **Mô hình khai báo (Cách tiếp cận của Terraform):**
-  * Người quản trị chỉ cần mô tả trạng thái cuối cùng mong muốn của hệ thống (ví dụ: hệ thống cần có 2 máy chủ với cấu hình 1 vCPU, 1.5 GB RAM và địa chỉ IP xác định).
-  * Terraform sẽ tự động tính toán trạng thái hiện tại, so sánh với trạng thái khai báo và tự đưa ra chuỗi hành động tối ưu để đưa hệ thống về đúng trạng thái đích.
+#### 1.1.1. Thực trạng và hạn chế nghiêm trọng của phương pháp quản trị truyền thống
+Phương pháp quản trị thủ công (ClickOps, Runbooks) bộc lộ 4 điểm yếu cốt tử:
+* **Tốc độ triển khai chậm chạp:** Cài đặt máy ảo, cấu hình thông số phần cứng và phân chia mạng thủ công mất hàng giờ đến hàng ngày.
+* **Dễ phát sinh sai sót (Human Error):** Thao tác gõ lệnh trực tiếp trên terminal dễ nhầm lẫn thông số, tạo lỗ hổng bảo mật.
+* **Hiện tượng trôi dạt cấu hình (Configuration Drift):** Các chỉnh sửa chắp vá khiến môi trường Dev, Staging và Production bị lệch pha theo thời gian, dẫn đến lỗi kinh điển: *"chạy được trên máy cục bộ nhưng lỗi trên máy chủ"*.
+* **Khó khôi phục sau sự cố (Disaster Recovery):** Khó tái lập môi trường khi máy chủ sập do phụ thuộc vào tài liệu cũ hoặc trí nhớ cá nhân.
 
-### 1.2. Kiến trúc hoạt động của Terraform
+#### 1.1.2. Năm lý do then chốt lựa chọn HashiCorp Terraform
+Đề tài lựa chọn Terraform làm công nghệ trụ cột cho tầng khởi tạo hạ tầng nhờ 5 ưu điểm vượt trội:
+1. **Mô hình khai báo (Declarative):** Kỹ sư chỉ cần mô tả trạng thái mong muốn cuối cùng (Desired State) bằng ngôn ngữ HCL; Terraform tự tính toán chuỗi hành động để đạt trạng thái đó.
+2. **Quản lý trạng thái (`terraform.tfstate`):** Đóng vai trò là nguồn chân lý duy nhất (Single Source of Truth), ánh xạ mã nguồn với tài nguyên thực tế, hỗ trợ phát hiện sai lệch và tự chữa lành.
+3. **Kế hoạch thực thi (`terraform plan`):** Hiển thị chi tiết trước mọi thay đổi (thêm `+`, sửa `~`, xóa `-`), loại bỏ nguy cơ tác động nhầm tài nguyên.
+4. **Tính nhất quán (Idempotency):** Đảm bảo dù thực thi một hay nhiều lần thì kết quả đạt được luôn là một trạng thái hạ tầng chuẩn duy nhất.
+5. **Hỗ trợ đa nền tảng (Cloud-Agnostic):** Cùng một tư duy cú pháp HCL có thể quản trị máy ảo cục bộ (Multipass, VMware, Docker) lẫn các nhà cung cấp đám mây (AWS, GCP, Azure), tránh hiện tượng Vendor Lock-in.
+
+#### 1.1.3. Phân định vai trò: Tại sao dùng Terraform mà không dùng Shell Script hay chỉ dùng Ansible?
+* **So với Shell Script:** Shell script mang tính mệnh lệnh, không có tệp trạng thái và không tự xây dựng đồ thị phụ thuộc, rất khó bảo trì khi mở rộng quy mô.
+* **So với Ansible (Cấp phát vs Cấu hình):**
+  * *Terraform (Provisioning):* Xuất sắc nhất trong việc tạo lập máy ảo, định hình phần cứng (CPU, RAM, Disk) và mạng từ con số 0.
+  * *Ansible (Configuration Management):* Xuất sắc nhất trong việc kết nối qua SSH để cài đặt gói phần mềm, cấu hình dịch vụ và thiết lập bảo mật.
+  * *Sự kết hợp tối ưu:* Terraform tự động sinh máy ảo và xuất tệp `inventory.ini`, sau đó Ansible đọc tệp này để cấu hình hệ điều hành — phân định ranh giới rõ ràng và tối ưu quy trình DevOps.
+
+### 1.2. So sánh mô hình hạ tầng khai báo và mô hình mệnh lệnh
+* **Mô hình mệnh lệnh (Imperative):** Quản trị viên phải chỉ định từng bước thực thi (*làm như thế nào* để đạt kết quả). Phương pháp này phức tạp, dễ lỗi khi chạy lại và khó kiểm soát trạng thái toàn cục.
+* **Mô hình khai báo (Declarative - Terraform):** Quản trị viên chỉ mô tả kết quả mong muốn (*cần có gì*, ví dụ: 2 máy chủ 1 vCPU, 1.5 GB RAM). Lõi Terraform tự động so sánh trạng thái hiện tại với khai báo và tự thực thi các bước cần thiết.
+
+### 1.3. Kiến trúc hoạt động của Terraform
+
+![Kiến trúc hoạt động của Terraform (Terraform Architecture)](../../images/week-4/terraform-architecture.png)
+*Hình 1.1: Sơ đồ kiến trúc tổng quan và luồng tương tác của Terraform (Terraform Architecture).*
 
 Terraform hoạt động dựa trên hai thành phần cốt lõi:
-1. **Lõi xử lý Terraform:** Đọc các tệp cấu hình viết bằng ngôn ngữ HCL, đọc tệp trạng thái hiện tại, xây dựng đồ thị phụ thuộc giữa các tài nguyên và tính toán kế hoạch thực thi tối ưu.
-2. **Các nhà cung cấp phần mềm:** Các phần mở rộng giao tiếp trực tiếp với giao diện lập trình ứng dụng của nền tảng đích (như máy chủ đám mây, bộ điều khiển máy ảo cục bộ hoặc hệ thống tệp tin) để trực tiếp tạo lập và điều khiển tài nguyên.
+1. **Lõi xử lý (Terraform Core):** Đọc các tệp cấu hình HCL (`.tf`) và tệp trạng thái (`terraform.tfstate`), xây dựng đồ thị phụ thuộc tài nguyên và tính toán kế hoạch thực thi (`plan`/`apply`).
+2. **Hệ thống Plugin (Providers & Provisioners):** 
+   * **Provider:** Giao tiếp trực tiếp với API của nền tảng đích (AWS, GCP, Azure, VMware, Multipass, Docker...) để khởi tạo và quản lý tài nguyên.
+   * **Provisioners:** Chạy các kịch bản cấu hình (như `remote-exec`, `local-exec`) sau khi tài nguyên đã được tạo thành công.
 
 ---
 
 ## 2. Vòng đời lệnh cốt lõi của Terraform
 
 Vòng đời làm việc với Terraform tuân theo quy trình năm bước tuần tự, đảm bảo mọi can thiệp vào hạ tầng đều được kiểm duyệt chặt chẽ trước khi áp dụng thực tế:
+
+![Vòng đời lệnh cốt lõi của Terraform (Terraform Lifecycle)](../../images/week-4/terraform-lifecycle.png)
+*Hình 2.1: Sơ đồ quy trình và ý nghĩa các bước trong vòng đời lệnh cốt lõi của Terraform.*
 
 ```text
 [ Soạn thảo mã nguồn HCL ]
@@ -63,43 +90,42 @@ Vòng đời làm việc với Terraform tuân theo quy trình năm bước tu�
 ```
 
 ### 2.1. Lệnh khởi tạo môi trường (`terraform init`)
-* **Mục đích:** Quét thư mục làm việc, nhận diện các nhà cung cấp được khai báo, tải các bản mở rộng tương ứng và tạo thư mục ẩn `.terraform` cùng tệp khóa phụ thuộc `.terraform.lock.hcl`.
+* **Ý nghĩa:** Tải và khởi tạo các nhà cung cấp (Provider), tạo thư mục `.terraform` và tệp khóa `.terraform.lock.hcl` để chuẩn bị môi trường làm việc.
 * **Cú pháp thực thi:**
   ```bash
   terraform init
   ```
 
 ### 2.2. Lệnh kiểm tra cú pháp (`terraform validate`)
-* **Mục đích:** Xác minh tính hợp lệ của toàn bộ mã nguồn HCL trong thư mục mà không cần kết nối tới hạ tầng thực tế. Lệnh này phát hiện nhanh các lỗi gõ nhầm tên thuộc tính, sai kiểu dữ liệu của biến hoặc thiếu các khối bắt buộc.
+* **Ý nghĩa:** Kiểm tra tính đúng đắn của cấu hình (cú pháp HCL, kiểu dữ liệu, tham chiếu) mà không cần kết nối tới hạ tầng thực tế.
 * **Cú pháp thực thi:**
   ```bash
   terraform validate
   ```
 
 ### 2.3. Lệnh lập kế hoạch thực thi (`terraform plan`)
-* **Mục đích:** So sánh mã nguồn khai báo với tệp trạng thái thực tế để tạo ra một bản tóm tắt các hành động sẽ được thực hiện.
-* **Quy ước ký hiệu trong kết quả hiển thị:**
-  * Ký hiệu dấu cộng màu xanh (`+`): Tài nguyên mới sẽ được tạo thêm.
-  * Ký hiệu dấu ngã màu vàng (`~`): Tài nguyên đã tồn tại sẽ được cập nhật thuộc tính.
-  * Ký hiệu dấu trừ màu đỏ (`-`): Tài nguyên thừa sẽ bị xóa bỏ.
-  * Ký hiệu dấu trừ sau đó dấu cộng (`-/+`): Tài nguyên bị phá hủy và tạo lại từ đầu do thuộc tính mới không thể cập nhật trực tiếp.
+* **Ý nghĩa:** Tính toán và dự báo các thay đổi so với trạng thái thực tế mà không tác động trực tiếp tới hệ thống:
+  * `+`: Tạo mới tài nguyên.
+  * `~`: Cập nhật thuộc tính tài nguyên hiện có.
+  * `-`: Xóa tài nguyên.
+  * `-/+`: Hủy và tạo lại tài nguyên.
 * **Cú pháp thực thi:**
   ```bash
-  terraform plan -out=tfplan.binary
+  terraform plan
   ```
 
 ### 2.4. Lệnh áp dụng thay đổi (`terraform apply`)
-* **Mục đích:** Tiến hành áp dụng chính xác bản kế hoạch đã lập vào hệ thống thực tế, sau đó cập nhật thông tin mới nhất vào tệp trạng thái.
+* **Ý nghĩa:** Thực thi các kế hoạch đã duyệt, tạo mới, cập nhật hoặc xóa tài nguyên trên hạ tầng thực tế và đồng bộ lại tệp trạng thái.
 * **Cú pháp thực thi:**
   ```bash
-  terraform apply tfplan.binary
+  terraform apply
   ```
 
 ### 2.5. Lệnh thu hồi tài nguyên (`terraform destroy`)
-* **Mục đích:** Đảo ngược toàn bộ quy trình, xóa bỏ hoàn toàn tất cả các tài nguyên do tệp trạng thái quản lý, đưa hệ thống về trạng thái ban đầu sạch sẽ mà không làm sót tài nguyên rác.
+* **Ý nghĩa:** Thu hồi và dọn dẹp sạch sẽ toàn bộ tài nguyên do Terraform quản lý khi không còn nhu cầu sử dụng.
 * **Cú pháp thực thi:**
   ```bash
-  terraform destroy -auto-approve
+  terraform destroy
   ```
 
 ---
@@ -107,15 +133,12 @@ Vòng đời làm việc với Terraform tuân theo quy trình năm bước tu�
 ## 3. Bản chất tệp trạng thái và cơ chế phát hiện trôi dạt cấu hình
 
 ### 3.1. Vai trò của tệp trạng thái (`terraform.tfstate`)
-* Tệp `terraform.tfstate` là tệp dữ liệu dạng JSON lưu trữ bản đồ ánh xạ chi tiết giữa định danh tài nguyên trong mã nguồn và tài nguyên thực tế bên ngoài hệ thống.
-* Nhờ có tệp trạng thái, Terraform biết chính xác thuộc tính nào đã tồn tại mà không cần phải truy vấn lại toàn bộ hạ tầng từ con số 0 trong mỗi thao tác, đồng thời phát hiện được những tài nguyên nào bị xóa ngoài luồng.
+* **Bản chất:** Là tệp JSON lưu trữ bản đồ ánh xạ giữa mã nguồn khai báo và tài nguyên thực tế trên hệ thống.
+* **Vai trò:** Đóng vai trò là nguồn chân lý duy nhất (Single Source of Truth), giúp Terraform theo dõi thuộc tính tài nguyên mà không cần quét lại toàn bộ hạ tầng từ đầu.
 
 ### 3.2. Cơ chế phát hiện trôi dạt cấu hình
-* **Hiện tượng trôi dạt cấu hình:** Xảy ra khi một kỹ sư đăng nhập thủ công vào máy chủ và thay đổi thông số phần cứng, dung lượng đĩa hoặc cấu hình mạng ngoài sự kiểm soát của mã nguồn.
-* **Cách Terraform xử lý:** Mỗi lần chạy lệnh `terraform plan`, Terraform thực hiện chu kỳ làm mới trạng thái:
-  1. Đọc dữ liệu từ hạ tầng thực tế.
-  2. So sánh trạng thái thực tế với tệp `terraform.tfstate` và mã nguồn khai báo.
-  3. Cảnh báo các thuộc tính bị sai lệch và tự động đề xuất phương án điều chỉnh hạ tầng trở về đúng chuẩn đã cam kết trong mã nguồn.
+* **Khái niệm:** Hiện tượng trôi dạt cấu hình (Configuration Drift) xảy ra khi hạ tầng thực tế bị can thiệp và sửa đổi thủ công ngoài tầm kiểm soát của mã nguồn.
+* **Cơ chế xử lý:** Khi chạy `terraform plan`, Terraform tự động đọc trạng thái thực tế, đối chiếu với `terraform.tfstate` và mã HCL để chỉ ra thuộc tính bị lệch, đồng thời tự đề xuất phương án đưa hạ tầng về đúng chuẩn ban đầu.
 
 ---
 
@@ -256,24 +279,7 @@ db_server_config = {
 
 ## 5. Kết quả thực nghiệm và đánh giá chất lượng
 
-### 5.1. Bảng đo lường hiệu năng các lệnh cốt lõi của Terraform
-
-| Câu lệnh thực thi | Thời gian xử lý trung bình | Kết quả đạt được | Đánh giá tính an toàn |
-| :--- | :--- | :--- | :--- |
-| `terraform init` | 1.8 giây | Tải xong nhà cung cấp cục bộ và tạo tệp khóa | An toàn tuyệt đối |
-| `terraform validate` | 0.3 giây | Cú pháp HCL chuẩn xác, không có lỗi kiểu dữ liệu | Không ảnh hưởng hệ thống |
-| `terraform plan` | 1.2 giây | Xuất chi tiết bản kế hoạch gồm 2 tài nguyên cần tạo | Kế hoạch dự đoán chính xác |
-| `terraform apply` | 2.5 giây | Hoàn tất tạo lập và cập nhật tệp trạng thái | Nhanh chóng, có thể lặp lại |
-| `terraform destroy` | 1.5 giây | Thu hồi toàn bộ tài nguyên trong tệp trạng thái | Dọn dẹp sạch sẽ |
-
-### 5.2. Đánh giá ưu điểm so với quản trị thủ công
-1. **Kiểm soát phiên bản hạ tầng:** Toàn bộ cấu hình máy chủ được lưu trữ trên Git, cho phép xem lại lịch sử thay đổi của hạ tầng tương tự như mã nguồn ứng dụng.
-2. **Loại bỏ sai sót con người:** Trước khi áp dụng bất kỳ thay đổi nào, người quản trị luôn thấy trước bản kế hoạch chi tiết, loại bỏ hoàn toàn rủi ro gõ nhầm lệnh xóa ngoài ý muốn.
-3. **Tính tái lập:** Khi xảy ra sự cố phần cứng, chỉ cần chạy lại lệnh `terraform apply` là toàn bộ cấu hình hạ tầng ban đầu được phục hồi nguyên vẹn.
-
----
-
-## 6. Tổng kết Tuần 4 và định hướng công việc Tuần 5
-
-* **Kết quả đạt được trong Tuần 4:** Đã nắm vững bản chất kiến trúc và vòng đời lệnh của Terraform, thiết kế hoàn chỉnh bộ mã nguồn cấu hình hạ tầng cho cụm 2 máy chủ `prod-vm` (`192.168.252.4`) và `db-server` (`192.168.252.5`).
-* **Định hướng công việc Tuần 5:** Xây dựng khối đầu ra trong Terraform, tự động sinh tệp danh mục máy chủ `inventory.ini` cho Ansible thông qua hàm nội suy mẫu, và kiểm tra tính nhất quán khi chạy lại nhiều lần.
+Qua quá trình thực nghiệm khởi tạo và quản lý cụm máy chủ bằng Terraform, hệ thống đạt được các ưu thế vượt trội so với quản trị thủ công:
+1. **Kiểm soát phiên bản hạ tầng:** Toàn bộ cấu hình máy chủ được lưu trữ và quản lý phiên bản trên Git, cho phép theo dõi lịch sử thay đổi tương tự như mã nguồn ứng dụng.
+2. **Loại bỏ sai sót con người:** Kế hoạch thực thi (`terraform plan`) hiển thị chi tiết trước mọi thay đổi, loại bỏ triệt để rủi ro thao tác nhầm lẫn.
+3. **Tính tái lập và tự phục hồi:** Khôi phục toàn bộ hạ tầng ban đầu nguyên vẹn chỉ với lệnh `terraform apply`, đảm bảo tính nhất quán tuyệt đối.

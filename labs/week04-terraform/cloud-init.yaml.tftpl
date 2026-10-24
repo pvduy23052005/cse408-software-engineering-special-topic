@@ -1,0 +1,52 @@
+#cloud-config
+# ==============================================================================
+# TỆP MẪU CẤU HÌNH CLOUD-INIT CHO MÁY ẢO TEST-TF (TUẦN 4)
+# Môn học: Chuyên đề Kỹ thuật Phần mềm (CSE408)
+# Sinh viên: Phùng Văn Duy - MSSV: 2352270589
+# ==============================================================================
+
+users:
+  - name: ${user}
+    gecos: Quản trị viên hệ thống Ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: [adm, sudo]
+    shell: /bin/bash
+    lock_passwd: false
+    ssh_authorized_keys:
+      - ${trimspace(ssh_public_key)}
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - curl
+  - wget
+  - git
+  - ufw
+  - htop
+  - net-tools
+  - ca-certificates
+
+timezone: Asia/Ho_Chi_Minh
+
+write_files:
+  - path: /etc/motd
+    content: |
+      ======================================================================
+      MÁY CHỦ THỰC NGHIỆM TERRAFORM (terraform-init) - CSE408
+      Khởi tạo tự động bằng Terraform qua Provider larstobi/multipass
+      Sinh viên thực hiện: Phùng Văn Duy - MSSV: 2352270589
+      Giảng viên hướng dẫn: Nguyễn Thọ Thông
+      ======================================================================
+    append: false
+
+runcmd:
+  - sed -i 's/^#*PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
+  - sed -i 's/^#*PubkeyAuthentication .*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+  - systemctl restart ssh
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow 22/tcp
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable

@@ -1,0 +1,14 @@
+# 1. Thư mục chứa plugin của provider
+**/.terraform/*
+.terraform.lock.hcl
+
+# 2. Tệp lưu trạng thái hạ tầng
+*.tfstate
+*.tfstate.*
+
+# 3. Tệp biến tham số thực tế (ngoại trừ tệp example)
+*.tfvars
+!*.tfvars.example
+
+# 4. Kế hoạch nhị phân tạm thời
+*.binary
