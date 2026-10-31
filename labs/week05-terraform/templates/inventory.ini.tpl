@@ -1,10 +1,3 @@
-# ==============================================================================
-# TỆP DANH MỤC MÁY CHỦ ANSIBLE TỰ ĐỘNG SINH TỪ TERRAFORM - TUẦN 5
-# Đề tài: Tự động hóa hạ tầng và CI/CD với Docker, Terraform và Ansible
-# Sinh viên thực hiện: Phùng Văn Duy - MSSV: 2352270589
-# Giảng viên hướng dẫn: Nguyễn Thọ Thông
-# ==============================================================================
-
 [app_servers]
 ${app_name} ansible_host=${app_ip} ansible_user=${app_user}
 

@@ -1,0 +1,84 @@
+---
+# ==============================================================================
+# KỊCH BẢN ANSIBLE CHUẨN HÓA VÀ BẢO MẬT HỆ ĐIỀU HÀNH CHO CỤM MÁY CHỦ - TUẦN 6
+# Môn học: Chuyên đề Kỹ thuật Phần mềm (CSE408)
+# Sinh viên: Phùng Văn Duy - MSSV: 2352270589
+# Giảng viên hướng dẫn: Nguyễn Thọ Thông
+# ==============================================================================
+
+# PHẦN 1: CẤU HÌNH NỀN TẢNG CHUNG CHO TOÀN BỘ CỤM MÁY CHỦ (cluster)
+- name: Chuan hoa he dieu hanh cho toan bo cum may chu
+  hosts: cluster
+  become: true
+  tasks:
+    - name: 1. Cap nhat danh muc goi phan mem he dieu hanh
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: 2. Thiet lap mui gio Viet Nam (Asia/Ho_Chi_Minh)
+      community.general.timezone:
+        name: Asia/Ho_Chi_Minh
+
+    - name: 3. Cai dat cac goi cong cu quan tri mang va he thong can thiet
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - htop
+          - net-tools
+          - ca-certificates
+          - gnupg
+          - ufw
+        state: present
+
+    - name: 4. Khoi tao chinh sach mac dinh cho tuong lua UFW (Deny Incoming, Allow Outgoing)
+      community.general.ufw:
+        direction: "{{ item.direction }}"
+        policy: "{{ item.policy }}"
+      loop:
+        - { direction: 'incoming', policy: 'deny' }
+        - { direction: 'outgoing', policy: 'allow' }
+
+    - name: 5. Luon mo cong SSH 22 de duy tri kenh quan tri an toan
+      community.general.ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+        comment: 'SSH Port quan tri he thong'
+
+# PHẦN 2: CHÍNH SÁCH TƯỜNG LỬA CHO MÁY CHỦ ỨNG DỤNG (prod-vm)
+- name: Cau hinh tuong lua cho may chu ung dung
+  hosts: app_servers
+  become: true
+  tasks:
+    - name: 6. Mo cong HTTP (80) va HTTPS (443) cho may chu ung dung
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: tcp
+        comment: "{{ item.comment }}"
+      loop:
+        - { port: '80', comment: 'HTTP Web Port' }
+        - { port: '443', comment: 'HTTPS Secure Web Port' }
+
+    - name: 7. Kich hoat tuong lua UFW tren may chu ung dung
+      community.general.ufw:
+        state: enabled
+
+# PHẦN 3: CHÍNH SÁCH TƯỜNG LỬA CHO MÁY CHỦ CƠ SỞ DỮ LIỆU (db-server)
+- name: Cau hinh tuong lua cho may chu co so du lieu MongoDB
+  hosts: db_servers
+  become: true
+  tasks:
+    - name: 8. Chi cho phep may chu ung dung prod-vm truy cap vao cong MongoDB 27017
+      community.general.ufw:
+        rule: allow
+        port: '27017'
+        proto: tcp
+        src: '192.168.252.4'
+        comment: 'MongoDB Port chi mo cho prod-vm'
+
+    - name: 9. Kich hoat tuong lua UFW tren may chu co so du lieu
+      community.general.ufw:
+        state: enabled

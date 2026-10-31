@@ -1,0 +1,25 @@
+{
+  "ansible_integration": {
+    "inventory_file": "./inventory.ini",
+    "ssh_key_used": "~/.ssh/id_ed25519_multipass"
+  },
+  "cluster": {
+    "app_server": {
+      "ip": "192.168.252.4",
+      "name": "prod-vm",
+      "resources": "1 vCPU, 512MB RAM, 3GB Disk",
+      "role": "Test App Node",
+      "user": "ubuntu"
+    },
+    "db_server": {
+      "ip": "192.168.252.5",
+      "name": "db-server",
+      "resources": "1 vCPU, 512MB RAM, 3GB Disk",
+      "role": "Test DB Node",
+      "user": "user-db"
+    }
+  },
+  "environment": "testing",
+  "project": "CSE408 - He thong tu dong hoa ha tang va CI/CD",
+  "provisioner": "HashiCorp Terraform"
+}

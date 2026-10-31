@@ -1,1 +1,0 @@
-{"environment":"production","project":"CSE408 - He thong tu dong hoa ha tang va CI/CD","provisioner":"HashiCorp Terraform (larstobi/multipass provider)","server":{"ip":"192.168.252.9","name":"terraform-init","resources":"1 vCPU, 1536MiB RAM, 5GiB Disk","role":"Application Node (Node.js \u0026 Nginx)","ssh_key":"~/.ssh/db-server-key.pub","user":"ubuntu"}}
