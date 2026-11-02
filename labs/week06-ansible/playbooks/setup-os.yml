@@ -37,15 +37,15 @@
         direction: "{{ item.direction }}"
         policy: "{{ item.policy }}"
       loop:
-        - { direction: 'incoming', policy: 'deny' }
-        - { direction: 'outgoing', policy: 'allow' }
+        - { direction: "incoming", policy: "deny" }
+        - { direction: "outgoing", policy: "allow" }
 
     - name: 5. Luon mo cong SSH 22 de duy tri kenh quan tri an toan
       community.general.ufw:
         rule: allow
-        port: '22'
+        port: "22"
         proto: tcp
-        comment: 'SSH Port quan tri he thong'
+        comment: "SSH Port quan tri he thong"
 
 # PHẦN 2: CHÍNH SÁCH TƯỜNG LỬA CHO MÁY CHỦ ỨNG DỤNG (prod-vm)
 - name: Cau hinh tuong lua cho may chu ung dung
@@ -59,8 +59,8 @@
         proto: tcp
         comment: "{{ item.comment }}"
       loop:
-        - { port: '80', comment: 'HTTP Web Port' }
-        - { port: '443', comment: 'HTTPS Secure Web Port' }
+        - { port: "80", comment: "HTTP Web Port" }
+        - { port: "443", comment: "HTTPS Secure Web Port" }
 
     - name: 7. Kich hoat tuong lua UFW tren may chu ung dung
       community.general.ufw:
@@ -74,10 +74,10 @@
     - name: 8. Chi cho phep may chu ung dung prod-vm truy cap vao cong MongoDB 27017
       community.general.ufw:
         rule: allow
-        port: '27017'
+        port: "27017"
         proto: tcp
-        src: '192.168.252.4'
-        comment: 'MongoDB Port chi mo cho prod-vm'
+        src: "192.168.252.4"
+        comment: "MongoDB Port chi mo cho prod-vm"
 
     - name: 9. Kich hoat tuong lua UFW tren may chu co so du lieu
       community.general.ufw:

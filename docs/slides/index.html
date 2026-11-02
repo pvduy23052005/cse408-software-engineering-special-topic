@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Báo Cáo Tiến Độ (Phần 01 - 05) - CSE408</title>
+  <style>
+    :root {
+      --primary: #4338ca;
+      --primary-light: #e0e7ff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --slide-bg: #ffffff;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --accent: #0284c7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background: #0f172a; color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    
+    .presentation-container {
+      width: 1200px;
+      height: 675px;
+      max-width: 95vw;
+      max-height: 90vh;
+      background: var(--slide-bg);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 44px 56px;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .slide-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--border); padding-bottom: 14px; }
+    .slide-tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 999px; margin-bottom: 6px; }
+    .slide-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+    .slide-meta { font-size: 12px; color: var(--text-muted); text-align: right; }
+
+    .slide-body { flex: 1; display: flex; align-items: center; justify-content: center; margin-top: 18px; gap: 28px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; width: 100%; height: 100%; align-items: center; }
+    
+    .content-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; font-size: 14px; line-height: 1.6; }
+    .bullet-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .bullet-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #334155; }
+    .bullet-list li strong { color: var(--text); }
+    .bullet-icon { color: var(--primary); font-weight: bold; flex-shrink: 0; }
+
+    .slide-img-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .slide-img { max-width: 100%; max-height: 440px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid var(--border); object-fit: contain; }
+
+    .slide-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; font-size: 12px; color: var(--text-muted); }
+
+    /* Controls bar */
+    .controls { display: flex; gap: 12px; align-items: center; margin-top: 14px; color: #94a3b8; font-size: 13px; }
+    .btn { background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s; }
+    .btn:hover { background: #334155; }
+    .page-indicator { font-weight: 700; color: #f8fafc; }
+
+    /* Metric table */
+    .metric-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .metric-table th, .metric-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    .metric-table th { background: #f1f5f9; font-weight: 700; color: #334155; }
+    .metric-badge { background: #dcfce7; color: #166534; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <div class="presentation-container">
+    <!-- Slide 1: Cover -->
+    <div class="slide active">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Học phần: CSE408</span>
+          <div class="slide-title">BÁO CÁO TIẾN ĐỘ CHUYÊN ĐỀ KỸ THUẬT PHẦN MỀM</div>
+        </div>
+        <div class="slide-meta">Học kỳ 7 • Năm học 2026-2027</div>
+      </div>
+      <div class="slide-body">
+        <div style="text-align: center; max-width: 800px;">
+          <h1 style="font-size: 32px; font-weight: 800; color: #4338ca; line-height: 1.3; margin-bottom: 24px;">
+            Tìm hiểu quy trình tự động hóa hạ tầng và CI/CD với Docker dựa trên Terraform và Ansible
+          </h1>
+          <div style="background: #f1f5f9; border-radius: 12px; padding: 20px 32px; display: inline-flex; gap: 48px; border: 1px solid #e2e8f0; text-align: left;">
+            <div>
+              <div style="font-size: 12px; color: #64748b; font-weight: 600;">SINH VIÊN THỰC HIỆN</div>
+              <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 4px;">Phùng Văn Duy</div>
+              <div style="font-size: 13px; color: #4338ca; font-weight: 600;">MSSV: 2352270589</div>
+            </div>
+            <div style="border-left: 1px solid #cbd5e1; padding-left: 48px;">
+              <div style="font-size: 12px; color: #64748b; font-weight: 600;">GIẢNG VIÊN HƯỚNG DẪN</div>
+              <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-top: 4px;">ThS. Nguyễn Thọ Thông</div>
+              <div style="font-size: 13px; color: #64748b;">Bộ môn Kỹ thuật Phần mềm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Khoa Công nghệ Thông tin</div>
+        <div>Phần 01 đến Phần 05</div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Pain points -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Đặt vấn đề</span>
+          <div class="slide-title">4 Điểm nghẽn Của Quản Trị Máy Chủ Truyền Thống</div>
+        </div>
+        <div class="slide-meta">Tại sao chọn đề tài?</div>
+      </div>
+      <div class="slide-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%;">
+          <div class="content-box" style="border-left: 4px solid #ef4444;">
+            <div style="font-size: 16px; font-weight: 800; color: #b91c1c; margin-bottom: 6px;">1. Trôi dạt cấu hình (Config Drift)</div>
+            <p style="color: #475569; font-size: 13px;">Gõ lệnh chắp vá trên terminal khiến môi trường Dev và Production bị sai lệch, dẫn tới lỗi *"máy tôi chạy bình thường, sao lên server lại sập?"*.</p>
+          </div>
+          <div class="content-box" style="border-left: 4px solid #f97316;">
+            <div style="font-size: 16px; font-weight: 800; color: #c2410c; margin-bottom: 6px;">2. Tốc độ triển khai chậm chạp</div>
+            <p style="color: #475569; font-size: 13px;">Kỹ sư mất hàng giờ hoặc hàng ngày để cài đặt từng gói phần mềm, phân quyền và mở cổng mạng thủ công khi cần mở rộng máy chủ.</p>
+          </div>
+          <div class="content-box" style="border-left: 4px solid #eab308;">
+            <div style="font-size: 16px; font-weight: 800; color: #a16207; margin-bottom: 6px;">3. Rủi ro sai sót con người (Human Error)</div>
+            <p style="color: #475569; font-size: 13px;">Chỉ cần gõ nhầm một ký tự cấu hình hoặc mở sai luật tường lửa có thể làm lộ cơ sở dữ liệu hoặc sập toàn bộ dịch vụ.</p>
+          </div>
+          <div class="content-box" style="border-left: 4px solid #6366f1;">
+            <div style="font-size: 16px; font-weight: 800; color: #4338ca; margin-bottom: 6px;">4. Khôi phục thảm họa (Disaster Recovery) kém</div>
+            <p style="color: #475569; font-size: 13px;">Khi máy chủ gặp sự cố phần cứng, việc dựng lại hoàn toàn phụ thuộc vào trí nhớ cá nhân hoặc tài liệu hướng dẫn đã lỗi thời.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Mục tiêu: Chuyển dịch toàn bộ sang mô hình Tự động hóa Khai báo (Declarative IaC)</div>
+        <div>Trang 2/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 3: 4 Pillars -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Kiến trúc Tổng thể</span>
+          <div class="slide-title">Bộ Tứ Trụ Cột Công Nghệ & Phân Vai</div>
+        </div>
+        <div class="slide-meta">Chuỗi liên hoàn Everything as Code</div>
+      </div>
+      <div class="slide-body">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%;">
+          <div class="content-box" style="border-top: 4px solid #6366f1; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #4338ca;">TERRAFORM</div>
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; margin: 4px 0 10px 0;">PROVISIONING</div>
+            <p style="font-size: 12px; color: #334155;">Cấp phát máy chủ ảo, CPU, RAM và định danh IP động qua mã nguồn HCL.</p>
+          </div>
+          <div class="content-box" style="border-top: 4px solid #ea580c; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #c2410c;">ANSIBLE</div>
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; margin: 4px 0 10px 0;">CONFIGURATION</div>
+            <p style="font-size: 12px; color: #334155;">Chuẩn hóa OS, cài gói phần mềm và cấu hình bảo mật tường lửa UFW qua SSH.</p>
+          </div>
+          <div class="content-box" style="border-top: 4px solid #0284c7; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #0369a1;">DOCKER</div>
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; margin: 4px 0 10px 0;">CONTAINERIZATION</div>
+            <p style="font-size: 12px; color: #334155;">Đóng gói cô lập ứng dụng, chia sẻ chung nhân Linux, chạy đồng nhất mọi nơi.</p>
+          </div>
+          <div class="content-box" style="border-top: 4px solid #16a34a; text-align: center;">
+            <div style="font-size: 18px; font-weight: 800; color: #15803d;">CI / CD</div>
+            <div style="font-size: 11px; font-weight: 700; color: #64748b; margin: 4px 0 10px 0;">GITHUB ACTIONS</div>
+            <p style="font-size: 12px; color: #334155;">Tự động kiểm thử, đóng gói image và kích hoạt cập nhật máy chủ khi có git push.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Quy trình khép kín: Tái lập 100% hệ thống chỉ bằng 1 dòng lệnh</div>
+        <div>Trang 3/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Part 1 -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Phần 01</span>
+          <div class="slide-title">Nền Tảng DevOps & Hạ Tầng Dưới Dạng Mã Nguồn (IaC)</div>
+        </div>
+        <div class="slide-meta">Cơ sở lý thuyết</div>
+      </div>
+      <div class="slide-body">
+        <div class="two-col">
+          <div>
+            <ul class="bullet-list">
+              <li><span class="bullet-icon">✓</span> <div><strong>Mô hình Khai báo (Declarative):</strong> Chỉ mô tả trạng thái đích mong muốn (*What*), công cụ tự tính toán lộ trình thực hiện (*How*).</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Nguyên lý Idempotency (Tính nhất quán):</strong> Thực thi 1 lần hay 100 lần thì hệ thống luôn đạt một trạng thái duy nhất.</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Git Single Source of Truth:</strong> Mọi thay đổi đều được lưu vết, kiểm duyệt bằng Pull Request trước khi áp dụng.</div></li>
+            </ul>
+          </div>
+          <div class="slide-img-container">
+            <img class="slide-img" src="../../images/week-1/devops-iac-architecture.png" alt="IaC Architecture">
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Hình 1.1: So sánh mô hình Khai báo (Declarative IaC) và Quản trị Thủ công (Manual Ops)</div>
+        <div>Trang 4/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Part 2 -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Phần 02</span>
+          <div class="slide-title">Đóng Gói Ứng Dụng với Docker & Docker Compose</div>
+        </div>
+        <div class="slide-meta">Containerization</div>
+      </div>
+      <div class="slide-body">
+        <div class="two-col">
+          <div>
+            <ul class="bullet-list">
+              <li><span class="bullet-icon">✓</span> <div><strong>VM vs Container:</strong> Container chia sẻ chung nhân Linux qua <em>Namespaces</em> (cô lập tài nguyên) và <em>Cgroups</em> (giới hạn RAM/CPU).</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Multi-stage Build:</strong> Tách giai đoạn biên dịch và runtime, giảm kích thước ảnh từ <strong>1.2 GB xuống &lt; 85 MB (-93%)</strong>.</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Bridge Network:</strong> Các container giao tiếp qua DNS nội bộ (<code>nginx</code> ⇄ <code>backend</code> ⇄ <code>mongodb</code>) mà không cần hardcode IP.</div></li>
+            </ul>
+          </div>
+          <div class="slide-img-container">
+            <img class="slide-img" src="../../images/week-2/docker-architecture-compose.png" alt="Docker Architecture">
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Hình 2.1: Kiến trúc Docker, quy trình Multi-stage Build và mạng nội bộ Compose</div>
+        <div>Trang 5/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Part 3 -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Phần 03</span>
+          <div class="slide-title">Khởi Tạo Hạ Tầng Khai Báo Với HashiCorp Terraform</div>
+        </div>
+        <div class="slide-meta">Cấp phát tài nguyên</div>
+      </div>
+      <div class="slide-body">
+        <div class="two-col">
+          <div>
+            <ul class="bullet-list">
+              <li><span class="bullet-icon">✓</span> <div><strong>Terraform Core & Providers:</strong> Đọc mã HCL và tệp trạng thái để xây dựng đồ thị phụ thuộc tối ưu.</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Tệp trạng thái (terraform.tfstate):</strong> Bộ nhớ trung tâm lưu trữ ánh xạ hiện thực giữa mã khai báo và hạ tầng.</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Drift Detection & Self-healing:</strong> Tự động phát hiện khi máy ảo bị xóa/sửa lén và tự chữa lành trong <strong>&lt; 2 giây</strong>.</div></li>
+            </ul>
+          </div>
+          <div class="slide-img-container">
+            <img class="slide-img" src="../../images/week-4/terraform-architecture.png" alt="Terraform Architecture">
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Hình 3.1: Sơ đồ kiến trúc tổng quan và luồng tương tác của Terraform</div>
+        <div>Trang 6/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Part 3 Lifecycle -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Phần 03</span>
+          <div class="slide-title">Vòng Đời Lệnh Cốt Lõi Của Terraform</div>
+        </div>
+        <div class="slide-meta">Kiểm soát an toàn</div>
+      </div>
+      <div class="slide-body">
+        <div class="two-col">
+          <div>
+            <ul class="bullet-list">
+              <li><span class="bullet-icon">1.</span> <div><code>terraform fmt</code>: Căn chỉnh chuẩn hóa mã nguồn HCL.</div></li>
+              <li><span class="bullet-icon">2.</span> <div><code>terraform init</code>: Tải provider plugins và khóa phiên bản.</div></li>
+              <li><span class="bullet-icon">3.</span> <div><code>terraform validate</code>: Kiểm tra tính đúng đắn cú pháp.</div></li>
+              <li><span class="bullet-icon">4.</span> <div><code>terraform plan</code>: Dự báo chính xác thay đổi (+ / ~ / -).</div></li>
+              <li><span class="bullet-icon">5.</span> <div><code>terraform apply</code>: Áp dụng thực tế vào cụm máy ảo.</div></li>
+            </ul>
+          </div>
+          <div class="slide-img-container">
+            <img class="slide-img" src="../../images/week-4/terraform-lifecycle.png" alt="Terraform Lifecycle">
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Hình 3.2: Quy trình 5 bước kiểm duyệt chặt chẽ trong vòng đời lệnh Terraform</div>
+        <div>Trang 7/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Part 4 Bridge -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Phần 04</span>
+          <div class="slide-title">Cầu Nối Tự Động Hóa: Terraform Tự Sinh Inventory Cho Ansible</div>
+        </div>
+        <div class="slide-meta">Xóa bỏ điểm nghẽn</div>
+      </div>
+      <div class="slide-body">
+        <div class="two-col">
+          <div>
+            <ul class="bullet-list">
+              <li><span class="bullet-icon">✓</span> <div><strong>Vấn đề thực tế:</strong> Sau khi Terraform tạo máy, địa chỉ IP là động. Nếu copy-paste bằng tay sẽ phát sinh lỗi gõ nhầm.</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Giải pháp templatefile():</strong> Tự động bơm IP thực tế vào mẫu <code>inventory.ini.tpl</code> và xuất file bằng tài nguyên <code>local_file</code>.</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Hiệu quả vượt trội:</strong> Thời gian chuyển giao <strong>&lt; 1 giây</strong>, triệt tiêu <strong>100% lỗi nhầm IP</strong>.</div></li>
+            </ul>
+          </div>
+          <div class="slide-img-container">
+            <img class="slide-img" src="../../images/week-5/terraform-ansible-bridge.png" alt="Terraform Ansible Bridge">
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Hình 4.1: Luồng chuyển giao tự động giữa Terraform và Ansible</div>
+        <div>Trang 8/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Part 5 Ansible & UFW -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Phần 05</span>
+          <div class="slide-title">Quản Lý Cấu Hình OS & Bảo Mật Tường Lửa UFW Đa Tầng</div>
+        </div>
+        <div class="slide-meta">Bảo mật hệ thống</div>
+      </div>
+      <div class="slide-body">
+        <div class="two-col">
+          <div>
+            <ul class="bullet-list">
+              <li><span class="bullet-icon">✓</span> <div><strong>Kiến trúc Agentless:</strong> Kết nối trực tiếp qua SSH (Ed25519 + Sudo NOPASSWD), không tốn RAM/CPU nền trên máy con.</div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Phân tầng bảo mật nghiêm ngặt:</strong>
+                <br>• <code>prod-vm</code> (App): Mở cổng 80 & 443 ra ngoài Internet.
+                <br>• <code>db-server</code> (DB): Cổng 27017 <strong>CHỈ MỞ RIÊNG</strong> cho <code>prod-vm</code>, chặn 100% IP lạ.
+              </div></li>
+              <li><span class="bullet-icon">✓</span> <div><strong>Kiểm nghiệm Idempotency:</strong> Lần 1 chạy ~42s (<code>changed=5</code>) ➔ Lần 2 chỉ mất <strong>~4s (<code>changed=0</code>)</strong>.</div></li>
+            </ul>
+          </div>
+          <div class="slide-img-container">
+            <img class="slide-img" src="../../images/week-6/ansible-ufw-architecture.png" alt="Ansible UFW Architecture">
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Hình 5.1: Kiến trúc điều phối Ansible Agentless và tường lửa UFW đa tầng</div>
+        <div>Trang 9/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Metrics -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Thực nghiệm</span>
+          <div class="slide-title">Bảng Số Liệu Định Lượng Đối Chứng Thực Tế</div>
+        </div>
+        <div class="slide-meta">Hiệu quả cải thiện</div>
+      </div>
+      <div class="slide-body">
+        <div style="width: 100%;">
+          <table class="metric-table">
+            <thead>
+              <tr>
+                <th>Tiêu chí đo lường</th>
+                <th>Phương pháp Thủ công (Manual)</th>
+                <th>Tự động hóa (Terraform & Ansible)</th>
+                <th>Mức độ cải thiện</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Thời gian tạo cụm máy chủ</strong></td>
+                <td>15 - 20 phút (gõ lệnh, chờ mạng)</td>
+                <td><strong>~46 giây</strong> (1 lệnh terraform apply)</td>
+                <td><span class="metric-badge">Nhanh hơn ~95%</span></td>
+              </tr>
+              <tr>
+                <td><strong>Chuyển giao thông tin IP</strong></td>
+                <td>2 - 3 phút copy/paste bằng tay</td>
+                <td><strong>&lt; 1 giây</strong> (qua templatefile)</td>
+                <td><span class="metric-badge">Tức thì, 0% lỗi</span></td>
+              </tr>
+              <tr>
+                <td><strong>Cấu hình OS & Tường lửa</strong></td>
+                <td>10 - 15 phút gõ từng terminal</td>
+                <td><strong>~42s</strong> (lần 1) và <strong>~4s</strong> (lần 2)</td>
+                <td><span class="metric-badge">Nhanh hơn ~90%</span></td>
+              </tr>
+              <tr>
+                <td><strong>Phát hiện & Sửa trôi dạt</strong></td>
+                <td>Hàng giờ kiểm tra thủ công</td>
+                <td><strong>&lt; 2 giây</strong> (tự phát hiện & chữa lành)</td>
+                <td><span class="metric-badge">Tự phục hồi tức thì</span></td>
+              </tr>
+              <tr>
+                <td><strong>Tính nhất quán khi chạy lại</strong></td>
+                <td>Dễ xung đột lệnh, trùng port</td>
+                <td><strong>100% nhất quán</strong> (changed=0)</td>
+                <td><span class="metric-badge">Độ tin cậy tuyệt đối</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Kết quả đúc kết từ quá trình thực nghiệm trực tiếp trên môi trường cụm máy chủ</div>
+        <div>Trang 10/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 11: Roadmap -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Kế hoạch</span>
+          <div class="slide-title">Kế Hoạch Triển Khai Các Giai Đoạn Tiếp Theo</div>
+        </div>
+        <div class="slide-meta">Lộ trình hoàn thiện</div>
+      </div>
+      <div class="slide-body">
+        <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+          <div class="content-box" style="border-left: 4px solid #0284c7;">
+            <div style="font-size: 15px; font-weight: 800; color: #0369a1;">Giai đoạn 2 (Phần 06): Tự động hóa dịch vụ với Docker & Nginx</div>
+            <p style="font-size: 13px; color: #475569; margin-top: 4px;">Viết Playbook Ansible tự động cài đặt Docker Engine và Docker Compose V2 chính thức từ Docker Repo trên prod-vm; cấu hình Nginx Reverse Proxy điều phối luồng truy cập.</p>
+          </div>
+          <div class="content-box" style="border-left: 4px solid #16a34a;">
+            <div style="font-size: 15px; font-weight: 800; color: #15803d;">Giai đoạn 3 (Phần 07 - 08): Đường ống CI/CD khép kín & Thực nghiệm toàn diện</div>
+            <p style="font-size: 13px; color: #475569; margin-top: 4px;">Xây dựng kịch bản GitHub Actions tự động kiểm thử mã nguồn, đóng gói Docker Image và kích hoạt cập nhật máy chủ khi có git push; đo lường kịch bản triển khai không gián đoạn.</p>
+          </div>
+          <div class="content-box" style="border-left: 4px solid #4338ca;">
+            <div style="font-size: 15px; font-weight: 800; color: #4338ca;">Giai đoạn 4 (Phần 09 - 10): Hoàn thiện Báo cáo Chuyên đề & Bảo vệ</div>
+            <p style="font-size: 13px; color: #475569; margin-top: 4px;">Hoàn chỉnh toàn văn báo cáo 5 chương theo đúng chuẩn học thuật của Nhà trường; chuẩn bị kịch bản demo trực tiếp trước Hội đồng chấm chuyên đề.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Đảm bảo bám sát đúng tiến độ học phần CSE408</div>
+        <div>Trang 11/12</div>
+      </div>
+    </div>
+
+    <!-- Slide 12: Q&A -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <span class="slide-tag">Kết thúc</span>
+          <div class="slide-title">Cảm Ơn Thầy Và Các Bạn Đã Lắng Nghe!</div>
+        </div>
+        <div class="slide-meta">CSE408</div>
+      </div>
+      <div class="slide-body">
+        <div style="text-align: center;">
+          <div style="font-size: 64px; margin-bottom: 16px;">💬</div>
+          <h2 style="font-size: 28px; font-weight: 800; color: #4338ca; margin-bottom: 12px;">HỎI VÀ ĐÁP (Q & A)</h2>
+          <p style="font-size: 16px; color: #64748b; max-width: 600px; margin: 0 auto;">
+            Em rất mong nhận được những góp ý và nhận xét quý báu từ ThS. Nguyễn Thọ Thông để hoàn thiện đề tài trong các giai đoạn tiếp theo.
+          </p>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <div>Sinh viên: Phùng Văn Duy • MSSV: 2352270589</div>
+        <div>Trang 12/12</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn" id="prevBtn" onclick="prevSlide()">◀ Trang trước</button>
+    <span class="page-indicator" id="pageIndicator">1 / 12</span>
+    <button class="btn" id="nextBtn" onclick="nextSlide()">Trang sau ▶</button>
+    <button class="btn" onclick="toggleFullScreen()">⛶ Toàn màn hình (F)</button>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const indicator = document.getElementById('pageIndicator');
+
+    function showSlide(index) {
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === index);
+      });
+      indicator.textContent = (index + 1) + " / " + totalSlides;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        showSlide(currentSlide);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        showSlide(currentSlide);
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+    });
+  </script>
+</body>
+</html>
