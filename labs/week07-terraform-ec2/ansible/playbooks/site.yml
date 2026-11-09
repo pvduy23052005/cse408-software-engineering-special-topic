@@ -1,0 +1,6 @@
+
+- name: Bước 1 - Chuẩn hóa hệ điều hành và tường lửa UFW trên AWS EC2
+  ansible.builtin.import_playbook: setup-os.yml
+
+- name: Bước 2 - Cài đặt Docker Engine và Docker Compose V2
+  ansible.builtin.import_playbook: install-docker.yml

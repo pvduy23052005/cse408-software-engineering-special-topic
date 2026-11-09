@@ -1,0 +1,95 @@
+---
+# ==============================================================================
+# PLAYBOOK 2: CÀI ĐẶT DOCKER ENGINE & DOCKER COMPOSE V2 CHÍNH THỨC - TUẦN 07
+# ==============================================================================
+
+- name: Cài đặt Docker Engine và Docker Compose V2 từ kho chính thức trên EC2
+  hosts: app_servers
+  become: true
+  gather_facts: true
+  tasks:
+    - name: 1. Đảm bảo các gói phụ thuộc cho kho APT Docker đã sẵn sàng
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - python3-debian
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+        lock_timeout: 120
+
+    - name: 2. Tạo thư mục lưu trữ khóa GPG /etc/apt/keyrings
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: 3. Tải khóa GPG chính thức của Docker
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: 4. Thêm kho lưu trữ APT Docker theo chuẩn DEB822 Ubuntu 24.04
+      ansible.builtin.deb822_repository:
+        name: docker
+        types: deb
+        uris: https://download.docker.com/linux/ubuntu
+        suites: "{{ ansible_facts['distribution_release'] }}"
+        components: stable
+        architectures: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
+        signed_by: /etc/apt/keyrings/docker.asc
+        state: present
+
+    - name: 5. Cài đặt Docker CE, containerd và Docker Compose V2 Plugin
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+        lock_timeout: 120
+
+    - name: 6. Kích hoạt và bật tự động chạy dịch vụ docker.service
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: 7. Đưa user ubuntu vào nhóm docker để chạy không cần sudo
+      ansible.builtin.user:
+        name: ubuntu
+        groups: docker
+        append: true
+
+    - name: 8. Làm mới phiên SSH để áp dụng nhóm quyền docker cho user ubuntu
+      ansible.builtin.meta: reset_connection
+
+    - name: 9. Kiểm tra phiên bản Docker Engine với quyền user ubuntu
+      ansible.builtin.command: docker --version
+      become: false
+      register: docker_version_out
+      changed_when: false
+
+    - name: 10. Kiểm tra phiên bản Docker Compose V2 với quyền user ubuntu
+      ansible.builtin.command: docker compose version
+      become: false
+      register: compose_version_out
+      changed_when: false
+
+    - name: 11. Chạy thử container mẫu hello-world không cần sudo
+      ansible.builtin.command: docker run --rm hello-world
+      become: false
+      changed_when: false
+
+    - name: 12. Hiển thị kết quả cài đặt Docker trên AWS EC2
+      ansible.builtin.debug:
+        msg:
+          - "Máy chủ: {{ inventory_hostname }} ({{ ansible_host }})"
+          - "{{ docker_version_out.stdout }}"
+          - "{{ compose_version_out.stdout }}"

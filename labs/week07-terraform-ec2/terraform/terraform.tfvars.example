@@ -1,0 +1,14 @@
+# Sao chép thành terraform.tfvars nếu muốn tùy chỉnh thông số:
+#   cp terraform.tfvars.example terraform.tfvars
+
+aws_region           = "ap-southeast-1"
+project_name         = "cse408-week07"
+
+# Gói AWS Free Tier Linux trên tài khoản của bạn hỗ trợ:
+# - t3.micro (2 vCPU, 1 GB RAM) -> Tiết kiệm nhất (mặc định)
+# - t3.small (2 vCPU, 2 GB RAM) -> Cũng thuộc Free Tier nếu cần thêm RAM cho build container
+instance_type        = "t3.micro"
+
+root_volume_size     = 20
+ssh_public_key_path  = "~/.ssh/aws_cse408_key.pub"
+ssh_private_key_path = "~/.ssh/aws_cse408_key"

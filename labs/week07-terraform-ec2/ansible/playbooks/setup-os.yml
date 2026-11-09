@@ -1,0 +1,70 @@
+---
+# ==============================================================================
+# PLAYBOOK 1: CHUẨN HÓA HỆ ĐIỀU HÀNH & BẢO MẬT UFW TRÊN AWS EC2 LINUX - TUẦN 07
+# ==============================================================================
+
+- name: Chuẩn hóa hệ điều hành và tường lửa UFW trên AWS EC2 Ubuntu
+  hosts: cluster
+  become: true
+  gather_facts: false
+  tasks:
+    - name: 1. Chờ cổng SSH trên EC2 sẵn sàng kết nối
+      ansible.builtin.wait_for_connection:
+        delay: 5
+        sleep: 5
+        timeout: 180
+
+    - name: 2. Thu thập thông tin hệ thống máy chủ EC2
+      ansible.builtin.setup:
+
+    - name: 3. Chờ cloud-init khởi tạo xong lần đầu để tránh xung đột APT lock
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+      failed_when: false
+
+    - name: 4. Cập nhật danh mục gói phần mềm APT
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+        lock_timeout: 120
+
+    - name: 5. Thiết lập múi giờ Việt Nam (Asia/Ho_Chi_Minh)
+      community.general.timezone:
+        name: Asia/Ho_Chi_Minh
+
+    - name: 6. Cài đặt các công cụ hệ thống, python3-debian và tường lửa UFW
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - htop
+          - net-tools
+          - ca-certificates
+          - gnupg
+          - python3-debian
+          - ufw
+        state: present
+        lock_timeout: 120
+
+    - name: 7. Khởi tạo chính sách mặc định UFW (Chặn chiều vào, cho phép chiều ra)
+      community.general.ufw:
+        direction: "{{ item.direction }}"
+        default: "{{ item.policy }}"
+      loop:
+        - { direction: "incoming", policy: "deny" }
+        - { direction: "outgoing", policy: "allow" }
+
+    - name: 8. Mở cổng SSH (22), HTTP (80), HTTPS (443) trước khi bật UFW
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: tcp
+        comment: "{{ item.comment }}"
+      loop:
+        - { port: "22", comment: "SSH Admin Port" }
+        - { port: "80", comment: "HTTP Web Apps" }
+        - { port: "443", comment: "HTTPS Web" }
+
+    - name: 9. Kích hoạt tường lửa UFW trên máy chủ EC2
+      community.general.ufw:
+        state: enabled

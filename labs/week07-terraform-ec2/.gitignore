@@ -1,0 +1,18 @@
+# 1. Thư mục chứa plugin của Terraform provider
+**/.terraform/*
+.terraform.lock.hcl
+
+# 2. Tệp lưu trạng thái hạ tầng (không đẩy lên Git)
+*.tfstate
+*.tfstate.*
+
+# 3. Tệp biến tham số thực tế (ngoại trừ tệp example)
+*.tfvars
+!*.tfvars.example
+
+# 4. Kế hoạch nhị phân tạm thời
+*.binary
+*.tfplan
+
+# 5. Inventory sinh tự động chứa Public IP thật
+ansible/inventory.ini
